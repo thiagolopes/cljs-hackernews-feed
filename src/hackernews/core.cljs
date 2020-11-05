@@ -56,7 +56,7 @@
   [:div
    [:div.header
     [:h1.header__title "Hacker News Feed"]
-    [:h2.header__title "Using ClojureScript+React using RUM"]]
+    [:h2.header__title "Using ClojureScript+RUM"]]
    [:main (list-of-posts)]])
 
 ;; main
