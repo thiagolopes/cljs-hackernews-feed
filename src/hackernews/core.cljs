@@ -13,9 +13,15 @@
 ;; constants
 (def url-base "https://hacker-news.firebaseio.com/")
 (def url-top-posts (str url-base "v0/topstories.json"))
+(defn url-post [post-id] (str url-base "v0/item/" (str post-id) ".json"))
+
+;; Helpers
+(defn unixtime->humantime [unixtimestamp]
+  (let [date (new js/Date (* unixtimestamp 1000))
+        utcdate (. date toUTCString)]
+    (clojure.string/join " " ["🗓" utcdate])))
 
 ;; fetch data
-(defn url-post [post-id] (str url-base "v0/item/" (str post-id) ".json"))
 
 (defn http-get [url]
   (http/get url {:with-credentials? false}))
@@ -37,20 +43,20 @@
 (rum/defc list-of-posts < rum/reactive []
   [:ul.post-list
    (for [id (:ids (rum/react state))]
-     (let [{:keys [title url by score kids]} (get-in @state [:posts id])]
+     (let [{:keys [title url by score kids time]} (get-in @state [:posts id])]
        [:li.post-list__item {:key id}
-        [:h2.post-list__item__title title]
-        [:a.post-list__item__url {:href url} url]
-        [:time.post-list__item__date "today"]
+        [:h2.post-list__item__title [:a {:href url} title]]
+        [:a.post-list__item__url {:href url} "↗️ " url]
+        [:time.post-list__item__date (unixtime->humantime time)]
         [:p.post-list__item__author "👤 " by]
         [:p.post-list__item__comments "💬 " (count kids) " comments"]
-        [:p.post-list__item__upvotes score]]))])
+        [:p.post-list__item__upvotes "🔼 " score " points"]]))])
 
 (rum/defc base-app []
   [:div
    [:div.header
     [:h1.header__title "Hacker News Feed"]
-    [:h2.header__title "Using Clojurescript+React "]]
+    [:h2.header__title "Using ClojureScript+React using RUM"]]
    [:main (list-of-posts)]])
 
 ;; main
